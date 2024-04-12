@@ -1,3 +1,6 @@
+import random
+
+# funkcja tworzaca macierz P na podstawie inputu
 def createMatrix(num_nodes, edges, stops, fails):
     total_connections = {}
     for source, target in edges:
@@ -23,6 +26,15 @@ def createMatrix(num_nodes, edges, stops, fails):
 
     return A
 
+# funkcja generujaca losowa macierz n x n
+def generateRandomMatrix(n):
+    return [[random.randint(1, 10) for _ in range(n)] for _ in range(n)]
+
+# funkcja generujaca losowy wektor o dlugosci n
+def generateRandomVector(n):
+    return [random.randint(1, 10) for _ in range(n)]
+
+# funkcja tworzaca wektor b na podstawie inputu
 def create_vector_b(num_nodes, stops):
     b = [0] * num_nodes
     for stop in stops:
@@ -30,6 +42,7 @@ def create_vector_b(num_nodes, stops):
         b[stop-1] = 1
     return b
 
+# funkcja czytajaca input z pliku (wzieta z test.py)
 def read_input(file_name):
     with open(file_name, 'r') as f:
         lines = f.readlines()
@@ -56,35 +69,29 @@ def read_input(file_name):
 
     return num_nodes, num_edges, edges, fails, stops, start
 
+# funkcja eliminacji Gaussa bez wyboru elementu podstawowego
 def eliminacjaGaussaBezWyboru(A, b):
     n = len(A)
 
-    # Eliminacja w przód
+    # Forward elimination
     for i in range(n):
-        # Sprawdź, czy element na przekątnej jest zerem
-        #print(f'i = {i}')
+        # Check if diagonal element is zero
         if A[i][i] == 0:
             raise ZeroDivisionError("Diagonal element is zero.")
 
         for j in range(i + 1, n):
-            #print(f'j = {j}')
-            ratio = A[j][i] / A[i][i] # Oblicz współczynnik mnożenia
-            #print(f'A[{j}][{i}] = {A[j][i]}, A[{i}][{i}] = {A[i][i]}, ratio = {ratio}')
+            ratio = A[j][i] / A[i][i] # Calculate the ratio
 
             for k in range(n):
-                A[j][k] -= ratio * A[i][k] # Zaktualizuj elementy w wierszu
-                #print(f'nowy A[{j}][{k}] = {A[j][k]}')
+                A[j][k] -= ratio * A[i][k] # Multiply the row with the ratio and subtract
 
-            # Zaktualizuj wektor b
+            # Multiply the b vector with the ratio and subtract
             b[j] -= ratio * b[i]
-            #print(f'nowy b[{j}] = {b[j]}')
 
     # Backward substitution
     x = [0 for _ in range(n)]
-    #print(f'x = {x}')
-    for i in range(n - 1, -1, -1):
+    for i in range(n - 1, -1, -1): # Iterate from the last row to the first row
         x[i] = b[i]
-        #print(f'x[{i}] = {x[i]}')
         for j in range(i + 1, n):
             x[i] -= A[i][j] * x[j]
         x[i] = x[i] / A[i][i]
@@ -92,6 +99,7 @@ def eliminacjaGaussaBezWyboru(A, b):
 
     return x
 
+# funkcja eliminacji Gaussa z czesciowym wyborem elementu podstawowego
 def gauss_elimination_with_partial_pivoting(A, b):
     n = len(A)
 
@@ -125,19 +133,8 @@ def gauss_elimination_with_partial_pivoting(A, b):
 
     return x
 
+# funkcja metody Gaussa-Seidela
 def gauss_seidel(A, b, tolerance=1e-10, max_iterations=1000):
-    """
-    Gauss-Seidel iterative method for solving linear equations.
-
-    Args:
-    A: Coefficient matrix
-    b: Right-hand side vector
-    tolerance: Tolerance for the convergence of the algorithm
-    max_iterations: Maximum number of iterations
-
-    Returns:
-    x: Solution vector
-    """
     n = len(A)
     x = [0 for _ in range(n)]  # Initial guess of the solution
     for iteration in range(max_iterations):
@@ -155,25 +152,17 @@ def gauss_seidel(A, b, tolerance=1e-10, max_iterations=1000):
 
     raise Exception("Gauss-Seidel method did not converge within the maximum number of iterations")
 
+# main
 num_nodes, num_edges, edges, fails, stops, start = read_input("input.txt")
 P = createMatrix(num_nodes, edges, fails, stops)
 b = create_vector_b(num_nodes, stops)
 P2, b2 = P, b
 P3, b3 = P, b
 
-
 x = eliminacjaGaussaBezWyboru(P, b)
 y = gauss_elimination_with_partial_pivoting(P2, b2)
 z, ilosc = gauss_seidel(P3, b3)
-#
-#
-# for i in range(len(P)):
-#     for j in range(len(P[i])):
-#         print(P[i][j], end=" ")
-#     print("\n")
-#
-# print(b)
-#
+
 print("Eliminacja Gaussa bez wyboru elementu podstawowego:")
 print(f'{x}')
 print("Eliminacja Gaussa z czesciowym wyborem elementu podstawowego:")
