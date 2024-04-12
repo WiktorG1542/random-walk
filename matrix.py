@@ -1,3 +1,5 @@
+# przy testowaniu losowych zakomentuj rounding. linie nr: 100, 134, 147 !!!!!!!!!!!!!!!!!!!
+
 import random
 
 # funkcja tworzaca macierz P na podstawie inputu
